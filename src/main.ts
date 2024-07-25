@@ -1,4 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, protocol } from 'electron';
+import { IpcMainInvokeEvent } from 'electron/main';
+
 import path from 'path';
 
 import { buildMenu } from './main/menu';
@@ -23,13 +25,13 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    // width: 800,
-    // height: 600,
-    width: 1200,
-    height: 900,
+    
+    width: configs.MAIN_WINDOW_WIDTH,
+    height: configs.MAIN_WINDOW_HEIGHT,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+
   });
 
   buildMenu(app, mainWindow);
@@ -74,9 +76,9 @@ app.whenReady().then(() => {
   ipcMain.handle('dialog:getLoopDirectory', handleGetLoopDirectory);
   ipcMain.handle('dialog:getStartleFile', handleGetStartleFile);
   ipcMain.handle('data:getArduinoPorts', handleGetArduinoPorts);
-
+  ipcMain.handle('data:testArduinoConnection', testArduinoConnection);
+  
   protocol.handle('haunt', handleFileProtocl);
-
   createWindow();
 });
 
@@ -84,8 +86,9 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   if (process.platform !== 'darwin') {
+    await serialConnection.closeConnection();
     app.quit();
   }
 });
@@ -129,7 +132,16 @@ async function handleGetStartleFile () : Promise<string | null> {
   }
 }
 
+async function testArduinoConnection (event: IpcMainInvokeEvent, port: string) : Promise<boolean> {
+  try {
+    return await serialConnection.testConnection(port);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 async function handleGetArduinoPorts () : Promise<any> {
+  console.log("Getting Ports");
   return await serialConnection.getPortOptions();
 }
 

@@ -25,6 +25,10 @@ const VideoPlayer = (props : IVideoPlayerProps) => {
       setModalOpen(true);
     }
 
+    return function cleanup() {
+      console.log("Regular Video Player unmounted");
+    };
+
   }, []); 
 
   const modalOKHandler = () => {
@@ -41,7 +45,7 @@ const VideoPlayer = (props : IVideoPlayerProps) => {
     <div>
       {/* <div style={{ color: 'white' }}>Video Player: {props.video}</div> */}
                 
-      <video className="video-fullscreen" ref={vidRef} onEnded={videoEndHandler}>
+      <video controls className="video-fullscreen" ref={vidRef} onEnded={videoEndHandler}>
          <source src={props.video} type="video/mp4" />
       </video>
       <ErrorModal errorMessage={errorMsg} open={modalOpen} onClick={modalOKHandler}/>
@@ -65,6 +69,10 @@ const StartlePlayer = (props : IVideoPlayerProps) => {
       setErrorMsg('No video file provided');
       setModalOpen(true);
     }
+
+    return function cleanup() {
+      console.log("Startle unmounted");
+    };
 
   }, []); 
 

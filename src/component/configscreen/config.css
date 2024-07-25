@@ -10,6 +10,13 @@
 }
 
 .config_groups  {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.success {
+  color: green;
+}
+.error {
+  color: red;
 }

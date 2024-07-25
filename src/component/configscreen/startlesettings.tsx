@@ -6,6 +6,9 @@ import { IAvaliablePorts } from '../../definitions/interfaces';
 import configs from '../../definitions/configs';
 
 import './config.css';
+import { s } from "vite/dist/node/types.d-aGj9QkWt";
+
+
 
 const StartleDetails = (props : any) => {  
   const marks : Array<{ value: number, label: string }> = [ 
@@ -20,6 +23,8 @@ const StartleDetails = (props : any) => {
   ];
 
   const [avaliablePorts, setAvaliablePorts] = React.useState(new Array<IAvaliablePorts>);
+  const [connected, setConnected] = React.useState(null);
+  const [testButtonDisabled, setTestButtonDisabled] = React.useState(false);
 
   const isPortInList = (portList : Array<IAvaliablePorts>, port : string) => {
         
@@ -32,6 +37,19 @@ const StartleDetails = (props : any) => {
     return false; 
   }
 
+  const testConnection = async () => {
+    
+    setTestButtonDisabled(true);
+    const success = await window.electronAPI.testArduinoConnection(props.selectedPort);     
+    if (success) {
+      setConnected(true); 
+    } else {
+      setConnected(false); 
+    }
+    setTestButtonDisabled(false);
+  }
+
+
   React.useEffect(() => {
     
     const fetchData = async () => {      
@@ -42,7 +60,7 @@ const StartleDetails = (props : any) => {
       if (avaliablePortList.length > 0) {        
         const settings = await window.electronAPI.getSettings();
         props.setSelectedPort(settings.selectedPortPath);
-        console.log("setting selected ports: " + settings.selectedPortPath);
+        
       }
 
 
@@ -71,6 +89,7 @@ const StartleDetails = (props : any) => {
   }, []);
 
   const selectListChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setConnected(null);
     props.setSelectedPort(event.target.value as string);
   }
 
@@ -80,19 +99,26 @@ const StartleDetails = (props : any) => {
       { (avaliablePorts.length > 0) ? <div>
         <div className="config_groups">
           <InputLabel id="Active-Ports-Select-Lable">Avaliable Ports</InputLabel>
-          <Select
-            labelId="Active Ports"
-            id="port-select"
-            value={props.selectedPort}
-            label="Ports"
-            onChange={selectListChangeHandler}
-          >      
+          <div style={{ display: 'flex', alignItems: 'center'}}> {/* Added a div with a flexbox display */}
+            <Select
+              labelId="Active Ports"
+              id="port-select"
+              value={props.selectedPort}
+              label="Ports"
+              onChange={selectListChangeHandler}
+              style={{ marginRight: '10px' }} // Added a right margin to the Select for spacing
+            >      
+              
+              {avaliablePorts.map(port => {
+                return <MenuItem key={port.path} value={port.path}>{port.friendlyName}</MenuItem>;
+              })}
             
-            {avaliablePorts.map(port => {
-              return <MenuItem key={port.path} value={port.path}>{port.friendlyName}</MenuItem>;
-            })}
-          
-          </Select>
+            </Select>
+
+            <Button size = "small" variant="contained" disabled={testButtonDisabled} type="button" onClick={testConnection}>Connect</Button>
+            {connected && <span id="ConnectionStatus" style={{ marginLeft: '10px' }} className="success">Connected</span>}
+            {connected === false && <span id="ConnectionStatus" style={{ marginLeft: '10px' }} className="error">Connection Error</span>} 
+          </div>
         </div>
         <div className="config_groups">
           <div id="file_btn">

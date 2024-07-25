@@ -15,6 +15,7 @@ declare global {
       getLoopDirectory: () => Promise<string>;
       getStartleFile: () => Promise<string>;
       getArduinoPorts: () => Promise<Array<IAvaliablePorts>>;
+      testArduinoConnection: (port : string) => Promise<boolean>;      
 
       onPlayVideo: (callback : any) => void;
       onStartleVideo: (callback : any) => void;

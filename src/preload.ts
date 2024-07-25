@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getLoopDirectory: () => ipcRenderer.invoke('dialog:getLoopDirectory'),
   getStartleFile: () => ipcRenderer.invoke('dialog:getStartleFile'),
   getArduinoPorts: () => ipcRenderer.invoke('data:getArduinoPorts'),  
+  testArduinoConnection: (port : string) => ipcRenderer.invoke('data:testArduinoConnection', port),    
 
   onPlayVideo: (callback : any) => ipcRenderer.on('play-video', (_event, value) => callback(value)),
   onStartleVideo: (callback : any) => ipcRenderer.on('startle-video', (_event, value) => callback(value)),
